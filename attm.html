@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Calculator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 50px;
+            background: linear-gradient(to right, #d4f1f4, #eef7f9);
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            margin: 10px;
+            padding: 12px;
+            font-size: 16px;
+            width: 85%;
+            border: 1px solid #a0c4ff;
+            border-radius: 5px;
+        }
+        input {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        button {
+            background-color: #6fb3b8;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #4a969e;
+        }
+        h2 {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #31708e;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Attendance Calculator</h2>
+		<label>Number of Hours Conducted:</label>
+		<input type="number" id="ch" step="any" min="0"><br>
+		<label>Number of Hours Attended:</label>
+		<input type="number" id="ah" step="any" min="0"><br>
+		<label>Required Attendance Percentage:</label>
+		<input type="number" id="goal" step="any" min="0"><br>
+        <button onclick="calculateAttendance()">Calculate</button>
+        <p id="result"></p>
+    </div>
+    <script>
+    function validateInput(id) {
+        let input = document.getElementById(id);
+        if (input.value < 0) {
+            input.value = 0;
+        }
+    }
+
+    document.getElementById("ch").addEventListener("input", () => validateInput("ch"));
+    document.getElementById("ah").addEventListener("input", () => validateInput("ah"));
+    document.getElementById("goal").addEventListener("input", () => validateInput("goal"));
+
+    function calculateAttendance() {
+        let ch = parseFloat(document.getElementById("ch").value);
+        let ah = parseFloat(document.getElementById("ah").value);
+        let goal = parseFloat(document.getElementById("goal").value) / 100;
+        let ha = 0;
+        let per = ah / ch;
+
+        // If the goal is invalid (e.g., greater than 100%)
+        if (goal > 1) {
+            document.getElementById("result").innerText = "Invalid goal percentage. Please enter a value between 0 and 100.";
+            return;
+        }
+
+        // Check if the target attendance is impossible
+        let maxPossibleAttendance = (ah + (1000 - ch)) / 1000; // Assume infinite future classes
+        if (per < goal && ah / ch < goal) {
+            let requiredClasses = Math.ceil((goal * ch - ah) / (1 - goal));
+
+            if (requiredClasses + ch > 10000) {  // Arbitrary limit to prevent unrealistic numbers
+                document.getElementById("result").innerText = "It is impossible to reach the required attendance percentage.";
+                return;
+            }
+        }
+
+        // Normal calculation if attendance is possible
+        while (per < goal) {
+            ha++;
+            ah++;
+            ch++;
+            per = ah / ch;
+        }
+
+        document.getElementById("result").innerText = `You need to attend at least ${ha} more classes to reach ${goal * 100}% attendance.`;
+    }
+</script>
+
+</body>
+</html>
