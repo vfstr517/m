@@ -51,80 +51,55 @@
 <body>
     <div class="container">
         <h2>Attendance Manager</h2>
-        <label>Number of Subjects:</label>
-        <input type="number" id="subjects" min="1"><br>
-        <button onclick="startAttendanceCalculation()">Start</button>
-        <div id="attendanceForms"></div>
+        <label>Number of Hours Conducted:</label>
+        <input type="number" id="ch" min="1"><br>
+        <label>Number of Hours Attended:</label>
+        <input type="number" id="ah" min="0"><br>
+        <label>Required Attendance Percentage:</label>
+        <input type="number" id="goal" min="0" max="100"><br>
+        <button onclick="calculateAttendance()">Calculate</button>
         <p id="result"></p>
     </div>
 
     <script>
-        function startAttendanceCalculation() {
-            let subjectCount = parseInt(document.getElementById("subjects").value);
-            let container = document.getElementById("attendanceForms");
-            container.innerHTML = "";
-            
-            for (let i = 0; i < subjectCount; i++) {
-                container.innerHTML += `
-                    <div class="subject-container">
-                        <h3>Subject ${i + 1}</h3>
-                        <label>Number of Hours Conducted:</label>
-                        <input type="number" class="ch" min="1"><br>
-                        <label>Number of Hours Attended:</label>
-                        <input type="number" class="ah" min="0"><br>
-                        <label>Required Attendance Percentage:</label>
-                        <input type="number" class="goal" min="0" max="100"><br>
-                    </div>
-                `;
-            }
-            container.innerHTML += '<button onclick="calculateAttendance()">Calculate</button>';
-        }
-
         function calculateAttendance() {
-            let subjects = document.querySelectorAll(".subject-container");
-            let resultText = "";
-            
-            subjects.forEach((subject, index) => {
-                let ch = parseFloat(subject.querySelector(".ch").value);
-                let ah = parseFloat(subject.querySelector(".ah").value);
-                let goal = parseFloat(subject.querySelector(".goal").value) / 100;
+            let ch = parseFloat(document.getElementById("ch").value);
+            let ah = parseFloat(document.getElementById("ah").value);
+            let goal = parseFloat(document.getElementById("goal").value) / 100;
 
-                if (isNaN(ch) || isNaN(ah) || isNaN(goal) || ch <= 0 || ah < 0 || goal < 0 || goal > 1) {
-                    resultText += `Subject ${index + 1}: Please enter valid numbers.<br>`;
-                    return;
+            if (isNaN(ch) || isNaN(ah) || isNaN(goal) || ch <= 0 || ah < 0 || goal < 0 || goal > 1) {
+                document.getElementById("result").innerHTML = "Please enter valid numbers.";
+                return;
+            }
+
+            let per = ah / ch;
+
+            // Impossible case: When goal is 100% and attended classes are not equal to conducted
+            if (goal === 1 && ah < ch) {
+                document.getElementById("result").innerHTML = "It is impossible to attain this attendance.";
+                return;
+            }
+
+            // Case when required attendance is already achieved
+            if (per >= goal) {
+                let maxMissedClasses = Math.floor((ah - goal * ch) / goal);
+                if (maxMissedClasses > 0) {
+                    document.getElementById("result").innerHTML = `You can skip up to ${maxMissedClasses} classes and still maintain ${(goal * 100).toFixed(2)}% attendance.`;
+                } else {
+                    document.getElementById("result").innerHTML = "You have attained the required percentage.";
                 }
+                return;
+            }
 
-                let per = ah / ch;
-
-                // Impossible case: When goal is 100% and attended classes are not equal to conducted
-                if (goal === 1 && ah < ch) {
-                    resultText += `Subject ${index + 1}: It is impossible to attain this attendance.<br>`;
-                    return;
-                }
-
-                // Case when required attendance is already achieved
-                if (per >= goal) {
-                    let maxMissedClasses = Math.floor((ah - goal * ch) / goal);
-                    if (maxMissedClasses > 0) {
-                        resultText += `Subject ${index + 1}: You can skip up to ${maxMissedClasses} classes and still maintain ${(goal * 100).toFixed(2)}% attendance.<br>`;
-                    } else {
-                        resultText += `Subject ${index + 1}: You have attained the required percentage.<br>`;
-                    }
-                    return;
-                }
-
-                // Case when more classes need to be attended
-                let ha = 0;
-                while (per < goal) {
-                    ha++;
-                    ah++;
-                    ch++;
-                    per = ah / ch;
-                }
-                resultText += `Subject ${index + 1}: You need to attend at least ${ha} more classes to reach ${(goal * 100).toFixed(2)}% attendance.<br>`;
-            });
-
-            document.getElementById("result").innerHTML = resultText;
+            // Case when more classes need to be attended
+            let ha = 0;
+            while (per < goal) {
+                ha++;
+                ah++;
+                ch++;
+                per = ah / ch;
+            }
+            document.getElementById("result").innerHTML = `You need to attend at least ${ha} more classes to reach ${(goal * 100).toFixed(2)}% attendance.`;
         }
     </script>
 </body>
