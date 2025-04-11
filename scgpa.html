@@ -1,42 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SCGPA Calculator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --bg-light: linear-gradient(to right, #dbeafe, #e0f2fe);
+      --bg-dark: #0f172a;
+      --text-light: #1e293b;
+      --text-dark: #f1f5f9;
+      --card-light: #ffffff;
+      --card-dark: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+    }
+
     * {
       box-sizing: border-box;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(to right, #dbeafe, #e0f2fe);
       margin: 0;
       padding: 40px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
+      background: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
     }
 
     .container {
-      background: #ffffff;
+      background: var(--card-light);
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
       width: 100%;
-      max-width: 700px;
+      max-width: 750px;
+      transition: background 0.3s;
+    }
+
+    body.dark .container {
+      background: var(--card-dark);
     }
 
     h2 {
       text-align: center;
-      color: #1e3a8a;
+      color: var(--accent);
       margin-bottom: 25px;
     }
 
     label {
       font-weight: 600;
-      color: #1e293b;
     }
 
     input[type="number"] {
@@ -51,7 +75,7 @@
     }
 
     input[type="number"]:focus {
-      border-color: #3b82f6;
+      border-color: var(--accent);
       outline: none;
     }
 
@@ -73,8 +97,8 @@
       }
     }
 
-    button {
-      background-color: #3b82f6;
+    button, .toggle-btn {
+      background-color: var(--accent);
       color: white;
       border: none;
       padding: 12px 20px;
@@ -87,15 +111,15 @@
       margin: 10px auto;
     }
 
-    button:hover {
-      background-color: #2563eb;
+    button:hover, .toggle-btn:hover {
+      background-color: var(--accent-hover);
     }
 
     #result {
       text-align: center;
       font-size: 22px;
       font-weight: 700;
-      color: #2563eb;
+      color: var(--accent);
       margin-top: 30px;
     }
 
@@ -104,12 +128,18 @@
       background: #e2e8f0;
       margin: 20px 0;
     }
+
+    #chartContainer {
+      margin-top: 40px;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
     <h2>🎓 SCGPA Calculator</h2>
+
+    <button class="toggle-btn" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
 
     <label for="numCourses">Enter number of courses:</label>
     <input type="number" id="numCourses" min="1" required placeholder="e.g., 5">
@@ -123,60 +153,153 @@
     </form>
 
     <div id="result"></div>
+    <button id="downloadBtn" style="display:none;" onclick="downloadReport()">📄 Download Report</button>
+
+    <div id="chartContainer">
+      <canvas id="scgpaChart" width="400" height="200"></canvas>
+    </div>
   </div>
 
-  <script>
-    function createInputs() {
-      const num = parseInt(document.getElementById('numCourses').value);
-      const container = document.getElementById('courseInputs');
-      const calcBtn = document.getElementById('calcBtn');
-      container.innerHTML = '';
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-      if (num > 0) {
-        for (let i = 0; i < num; i++) {
-          container.innerHTML += `
-            <div class="input-row">
-              <div>
-                <label>Course ${i + 1} - Credits (Integer)</label>
-                <input type="number" name="credits" min="0" max="10" step="1" required>
-              </div>
-              <div>
-                <label>Points (Decimal)</label>
-                <input type="number" name="points" min="0" step="0.01" required>
-              </div>
+<script>
+  let chart;
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+  }
+
+  function createInputs() {
+    const num = parseInt(document.getElementById('numCourses').value);
+    const container = document.getElementById('courseInputs');
+    const calcBtn = document.getElementById('calcBtn');
+    document.getElementById('downloadBtn').style.display = 'none';
+    container.innerHTML = '';
+
+    if (num > 0) {
+      for (let i = 0; i < num; i++) {
+        container.innerHTML += `
+          <div class="input-row">
+            <div>
+              <label>Course ${i + 1} - Credits (Integer)</label>
+              <input type="number" name="credits" min="0" step="1" required>
             </div>
-          `;
-        }
-        calcBtn.style.display = 'block';
+            <div>
+              <label>Points (0 to 10)</label>
+              <input type="number" name="points" min="0" max="10" step="0.01" required>
+            </div>
+          </div>
+        `;
       }
+      calcBtn.style.display = 'block';
+    }
+  }
+
+  let lastSCGPA = 0;
+  let reportData = [];
+
+  function calculateSCGPA(event) {
+    event.preventDefault();
+
+    const creditInputs = document.getElementsByName('credits');
+    const pointInputs = document.getElementsByName('points');
+    const resultBox = document.getElementById('result');
+
+    let totalCredits = 0;
+    let weightedSum = 0;
+
+    let labels = [];
+    let values = [];
+    reportData = [];
+
+    for (let i = 0; i < creditInputs.length; i++) {
+      const credit = parseInt(creditInputs[i].value);
+      const point = parseFloat(pointInputs[i].value);
+
+      if (credit < 0 || point < 0 || point > 10) {
+        alert("Credits must be non-negative and points must be between 0 and 10.");
+        return;
+      }
+
+      totalCredits += credit;
+      weightedSum += credit * point;
+
+      labels.push(`Course ${i + 1}`);
+      values.push((credit * point) / totalCredits * 10);
+      reportData.push({ course: i + 1, credit, point });
     }
 
-    function calculateSCGPA(event) {
-      event.preventDefault();
+    const scgpa = weightedSum / totalCredits;
+    lastSCGPA = scgpa;
 
-      const creditInputs = document.getElementsByName('credits');
-      const pointInputs = document.getElementsByName('points');
+    resultBox.textContent = `⭐ Your SCGPA is: ${scgpa.toFixed(2)}`;
+    document.getElementById('downloadBtn').style.display = 'block';
 
-      let totalCredits = 0;
-      let weightedSum = 0;
+    renderChart(labels, values);
+  }
 
-      for (let i = 0; i < creditInputs.length; i++) {
-        const credit = parseInt(creditInputs[i].value);
-        const point = parseFloat(pointInputs[i].value);
-
-        if (credit < 0 || point < 0) {
-          alert("Negative values are not allowed.");
-          return;
+  function renderChart(labels, values) {
+    const ctx = document.getElementById('scgpaChart').getContext('2d');
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Course Contribution (relative)',
+          data: values,
+          backgroundColor: '#3b82f6',
+          borderRadius: 8
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'SCGPA Contribution'
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false }
         }
-
-        totalCredits += credit;
-        weightedSum += credit * point;
       }
+    });
+  }
 
-      const scgpa = weightedSum / totalCredits;
-      document.getElementById('result').textContent = `⭐ Your SCGPA is: ${scgpa.toFixed(2)}`;
-    }
-  </script>
+  async function downloadReport() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-</body>
-</html>
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("SCGPA Report", 105, 20, null, null, "center");
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+
+    doc.text(`SCGPA: ${lastSCGPA.toFixed(2)}`, 20, 40);
+
+    doc.text("Course Details:", 20, 50);
+    let y = 60;
+    doc.setFont("helvetica", "bold");
+    doc.text("Course", 20, y);
+    doc.text("Credits", 60, y);
+    doc.text("Points", 100, y);
+    doc.setFont("helvetica", "normal");
+
+    reportData.forEach(row => {
+      y += 10;
+      doc.text(row.course.toString(), 20, y);
+      doc.text(row.credit.toString(), 60, y);
+      doc.text(row.point.toString(), 100, y);
+    });
+
+    doc.save("SCGPA_Report.pdf");
+  }
+</script>
