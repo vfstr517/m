@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SCGPA Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #dbeafe, #e0f2fe);
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #1e3a8a;
+      margin-bottom: 25px;
+    }
+
+    label {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+      border-color: #3b82f6;
+      outline: none;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 600px) {
+      .input-row {
+        flex-direction: row;
+        gap: 20px;
+      }
+
+      .input-row > div {
+        flex: 1;
+      }
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+      display: block;
+      margin: 10px auto;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    #result {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #2563eb;
+      margin-top: 30px;
+    }
+
+    .divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🎓 SCGPA Calculator</h2>
+
+    <label for="numCourses">Enter number of courses:</label>
+    <input type="number" id="numCourses" min="1" required placeholder="e.g., 5">
+    <button onclick="createInputs()">Next</button>
+
+    <div class="divider"></div>
+
+    <form id="coursesForm" onsubmit="calculateSCGPA(event)">
+      <div id="courseInputs"></div>
+      <button type="submit" style="display:none;" id="calcBtn">Calculate SCGPA</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function createInputs() {
+      const num = parseInt(document.getElementById('numCourses').value);
+      const container = document.getElementById('courseInputs');
+      const calcBtn = document.getElementById('calcBtn');
+      container.innerHTML = '';
+
+      if (num > 0) {
+        for (let i = 0; i < num; i++) {
+          container.innerHTML += `
+            <div class="input-row">
+              <div>
+                <label>Course ${i + 1} - Credits (Integer)</label>
+                <input type="number" name="credits" min="0" step="1" required>
+              </div>
+              <div>
+                <label>Points (Decimal)</label>
+                <input type="number" name="points" min="0" step="0.01" required>
+              </div>
+            </div>
+          `;
+        }
+        calcBtn.style.display = 'block';
+      }
+    }
+
+    function calculateSCGPA(event) {
+      event.preventDefault();
+
+      const creditInputs = document.getElementsByName('credits');
+      const pointInputs = document.getElementsByName('points');
+
+      let totalCredits = 0;
+      let weightedSum = 0;
+
+      for (let i = 0; i < creditInputs.length; i++) {
+        const credit = parseInt(creditInputs[i].value);
+        const point = parseFloat(pointInputs[i].value);
+
+        if (credit < 0 || point < 0) {
+          alert("Negative values are not allowed.");
+          return;
+        }
+
+        totalCredits += credit;
+        weightedSum += credit * point;
+      }
+
+      const scgpa = weightedSum / totalCredits;
+      document.getElementById('result').textContent = `⭐ Your SCGPA is: ${scgpa.toFixed(2)}`;
+    }
+  </script>
+
+</body>
+</html>
