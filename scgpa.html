@@ -163,8 +163,13 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
   let chart;
+  let lastSCGPA = 0;
+  let reportData = [];
 
   function toggleDarkMode() {
     document.body.classList.toggle('dark');
@@ -196,9 +201,6 @@
     }
   }
 
-  let lastSCGPA = 0;
-  let reportData = [];
-
   function calculateSCGPA(event) {
     event.preventDefault();
 
@@ -226,7 +228,7 @@
       weightedSum += credit * point;
 
       labels.push(`Course ${i + 1}`);
-      values.push((credit * point) / totalCredits * 10);
+      values.push(point);
       reportData.push({ course: i + 1, credit, point });
     }
 
@@ -243,28 +245,29 @@
     const ctx = document.getElementById('scgpaChart').getContext('2d');
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: labels,
         datasets: [{
-          label: 'Course Contribution (relative)',
+          label: 'Points per Course',
           data: values,
-          backgroundColor: '#3b82f6',
-          borderRadius: 8
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.2)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 5
         }]
       },
       options: {
         scales: {
           y: {
             beginAtZero: true,
+            max: 10,
             title: {
               display: true,
-              text: 'SCGPA Contribution'
+              text: 'Points'
             }
           }
-        },
-        plugins: {
-          legend: { display: false }
         }
       }
     });
@@ -280,9 +283,7 @@
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
-
     doc.text(`SCGPA: ${lastSCGPA.toFixed(2)}`, 20, 40);
 
     doc.text("Course Details:", 20, 50);
@@ -299,6 +300,14 @@
       doc.text(row.credit.toString(), 60, y);
       doc.text(row.point.toString(), 100, y);
     });
+
+    // Add chart image to PDF
+    const canvas = document.getElementById('scgpaChart');
+    const imageData = canvas.toDataURL('image/png');
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.text("SCGPA Graph", 105, 20, null, null, "center");
+    doc.addImage(imageData, 'PNG', 15, 30, 180, 100);
 
     doc.save("SCGPA_Report.pdf");
   }
