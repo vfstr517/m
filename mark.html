@@ -57,6 +57,29 @@
             font-weight: bold;
             margin-top: 20px;
         }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+            color: #f1f1f1;
+        }
+
+        .dark-mode input {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .dark-mode button {
+            background: #1e90ff;
+        }
+
+        .dark-mode button:hover {
+            background: #1c86ee;
+        }
+
+        .dark-mode .module-container {
+            background: rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body>
@@ -71,7 +94,13 @@
             <div id="module2"></div>
         </div>
     </div>
-    <button onclick="calculateInternals()">Calculate Internals</button>
+
+    <div style="margin-top: 20px;">
+        <button onclick="calculateInternals()">Calculate Internals</button>
+        <button onclick="clearFields()" style="margin-left: 10px;">Clear</button>
+        <button onclick="toggleDarkMode()" style="margin-left: 10px;">Toggle Dark Mode</button>
+    </div>
+
     <h3 id="result"></h3>
 
     <script>
@@ -96,7 +125,7 @@
                 input.id = moduleId + '-' + field.name.replace(/\s/g, '');
                 input.max = field.max;
                 input.min = -3;
-                input.oninput = function() {
+                input.oninput = function () {
                     if (parseFloat(this.value) > field.max) {
                         this.value = field.max;
                     } else if (parseFloat(this.value) < -3) {
@@ -114,12 +143,13 @@
             let t3p1 = parseFloat(document.getElementById(moduleId + '-T3Part1').value) || 0;
             let t3p2 = parseFloat(document.getElementById(moduleId + '-T3Part2').value) || 0;
             let t4 = parseFloat(document.getElementById(moduleId + '-T4').value) || 0;
-            let t5 = (
-                parseFloat(document.getElementById(moduleId + '-T5-1').value) || 0 +
-                parseFloat(document.getElementById(moduleId + '-T5-2').value) || 0 +
-                parseFloat(document.getElementById(moduleId + '-T5-3').value) || 0 +
-                parseFloat(document.getElementById(moduleId + '-T5-4').value) || 0
-            ) / 4;
+            let t5_1 = parseFloat(document.getElementById(moduleId + '-T5-1').value) || 0;
+            let t5_2 = parseFloat(document.getElementById(moduleId + '-T5-2').value) || 0;
+            let t5_3 = parseFloat(document.getElementById(moduleId + '-T5-3').value) || 0;
+            let t5_4 = parseFloat(document.getElementById(moduleId + '-T5-4').value) || 0;
+
+            let t5 = (t5_1 + t5_2 + t5_3 + t5_4) / 4;
+
             return ((t1 / 3) + (t2p1 + t2p2) + (t3p1 + t3p2) + t4 + t5) / 2;
         }
 
@@ -127,6 +157,16 @@
             let m1 = marks("module1");
             let m2 = marks("module2");
             document.getElementById("result").innerText = "Internals = " + (m1 + m2).toFixed(2);
+        }
+
+        function clearFields() {
+            let inputs = document.querySelectorAll('input');
+            inputs.forEach(input => input.value = '');
+            document.getElementById("result").innerText = '';
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
         }
 
         createModuleForm("module1");
