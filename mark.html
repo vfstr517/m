@@ -187,6 +187,76 @@
   }
   .t5-grid .field label { font-size: 0.65rem; }
 
+  /* Add -webkit-appearance fix for mobile number inputs */
+  .field input[type=number] {
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+  }
+  .field input[type=number]::-webkit-inner-spin-button,
+  .field input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* ── Mobile responsive ── */
+  @media (max-width: 600px) {
+    header { padding: 22px 16px 18px; }
+    header p { font-size: 0.66rem; letter-spacing: 0.05em; }
+
+    .container { padding: 20px 12px 0; }
+
+    .tabs { margin-bottom: 18px; gap: 6px; }
+    .tab-btn { font-size: 0.8rem; padding: 10px 4px; }
+
+    .progress-dots { margin-bottom: 18px; }
+
+    .section-label { font-size: 0.6rem; letter-spacing: 0.08em; margin-bottom: 10px; }
+
+    .inputs-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .t5-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .field input {
+      font-size: 1rem;
+      padding: 13px 10px;
+    }
+    .field label { font-size: 0.64rem; }
+    .field .err-msg { font-size: 0.58rem; }
+
+    .breakdown { padding: 14px 12px; }
+    .breakdown-row {
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.74rem;
+      padding: 8px 10px;
+    }
+    .breakdown-row .lbl { font-size: 0.7rem; }
+    .breakdown-row .val { font-weight: 600; margin-top: 1px; }
+    .breakdown-row.total-row .val { font-size: 0.9rem; }
+
+    .calc-btn { font-size: 0.9rem; padding: 15px; margin-top: 8px; }
+
+    .final-card { padding: 28px 14px; margin-top: 22px; }
+    .final-card .subtitle { font-size: 0.62rem; }
+    .final-card .big-score { font-size: clamp(3rem, 20vw, 5rem); }
+    .final-card .out-of { font-size: 0.72rem; margin-top: 4px; }
+    .grade-badge { font-size: 0.85rem; padding: 7px 18px; margin-top: 16px; }
+
+    .modules-summary { gap: 10px; margin-top: 18px; }
+    .mod-pill { font-size: 0.7rem; padding: 6px 14px; }
+
+    .reset-btn { font-size: 0.72rem; padding: 9px 20px; margin-top: 16px; }
+  }
+
+  @media (max-width: 360px) {
+    .inputs-grid { grid-template-columns: 1fr; }
+  }
+
   /* Breakdown card */
   .breakdown {
     background: var(--card);
@@ -373,27 +443,27 @@
     <div class="inputs-grid">
       <div class="field">
         <label>Pre-T1 Marks <span class="max-hint">/ 10</span></label>
-        <input type="number" id="m1_pt1" min="-3" max="10" step="0.01" placeholder="-3 – 10">
+        <input type="number" inputmode="decimal" id="m1_pt1" min="-3" max="10" step="0.01" placeholder="-3 – 10">
         <span class="err-msg">Range: -3 to 10</span>
       </div>
       <div class="field">
         <label>T1 Marks <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m1_t1" min="-3" max="20" step="0.01" placeholder="-3 – 20">
+        <input type="number" inputmode="decimal" id="m1_t1" min="-3" max="20" step="0.01" placeholder="-3 – 20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T2 Marks <span class="max-hint">/ 5</span></label>
-        <input type="number" id="m1_t2" min="-3" max="5" step="0.01" placeholder="-3 – 5">
+        <input type="number" inputmode="decimal" id="m1_t2" min="-3" max="5" step="0.01" placeholder="-3 – 5">
         <span class="err-msg">Range: -3 to 5</span>
       </div>
       <div class="field">
         <label>T3 Marks <span class="max-hint">/ 5</span></label>
-        <input type="number" id="m1_t3" min="-3" max="5" step="0.01" placeholder="-3 – 5">
+        <input type="number" inputmode="decimal" id="m1_t3" min="-3" max="5" step="0.01" placeholder="-3 – 5">
         <span class="err-msg">Range: -3 to 5</span>
       </div>
       <div class="field">
         <label>T4 Marks <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m1_t4" min="-3" max="20" step="0.01" placeholder="-3 – 20">
+        <input type="number" inputmode="decimal" id="m1_t4" min="-3" max="20" step="0.01" placeholder="-3 – 20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
     </div>
@@ -402,22 +472,22 @@
     <div class="t5-grid">
       <div class="field">
         <label>T5 [1] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m1_t5_0" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m1_t5_0" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T5 [2] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m1_t5_1" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m1_t5_1" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T5 [3] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m1_t5_2" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m1_t5_2" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T5 [4] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m1_t5_3" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m1_t5_3" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
     </div>
@@ -435,27 +505,27 @@
     <div class="inputs-grid">
       <div class="field">
         <label>Pre-T1 Marks <span class="max-hint">/ 10</span></label>
-        <input type="number" id="m2_pt1" min="-3" max="10" step="0.01" placeholder="-3 – 10">
+        <input type="number" inputmode="decimal" id="m2_pt1" min="-3" max="10" step="0.01" placeholder="-3 – 10">
         <span class="err-msg">Range: -3 to 10</span>
       </div>
       <div class="field">
         <label>T1 Marks <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m2_t1" min="-3" max="20" step="0.01" placeholder="-3 – 20">
+        <input type="number" inputmode="decimal" id="m2_t1" min="-3" max="20" step="0.01" placeholder="-3 – 20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T2 Marks <span class="max-hint">/ 5</span></label>
-        <input type="number" id="m2_t2" min="-3" max="5" step="0.01" placeholder="-3 – 5">
+        <input type="number" inputmode="decimal" id="m2_t2" min="-3" max="5" step="0.01" placeholder="-3 – 5">
         <span class="err-msg">Range: -3 to 5</span>
       </div>
       <div class="field">
         <label>T3 Marks <span class="max-hint">/ 5</span></label>
-        <input type="number" id="m2_t3" min="-3" max="5" step="0.01" placeholder="-3 – 5">
+        <input type="number" inputmode="decimal" id="m2_t3" min="-3" max="5" step="0.01" placeholder="-3 – 5">
         <span class="err-msg">Range: -3 to 5</span>
       </div>
       <div class="field">
         <label>T4 Marks <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m2_t4" min="-3" max="20" step="0.01" placeholder="-3 – 20">
+        <input type="number" inputmode="decimal" id="m2_t4" min="-3" max="20" step="0.01" placeholder="-3 – 20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
     </div>
@@ -464,22 +534,22 @@
     <div class="t5-grid">
       <div class="field">
         <label>T5 [1] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m2_t5_0" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m2_t5_0" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T5 [2] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m2_t5_1" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m2_t5_1" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T5 [3] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m2_t5_2" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m2_t5_2" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
       <div class="field">
         <label>T5 [4] <span class="max-hint">/ 20</span></label>
-        <input type="number" id="m2_t5_3" min="-3" max="20" step="0.01" placeholder="-3–20">
+        <input type="number" inputmode="decimal" id="m2_t5_3" min="-3" max="20" step="0.01" placeholder="-3–20">
         <span class="err-msg">Range: -3 to 20</span>
       </div>
     </div>
@@ -495,7 +565,7 @@
   <div class="final-card" id="finalCard">
     <div class="subtitle">Final Aggregated Score</div>
     <div class="big-score" id="finalScore">—</div>
-    <div class="out-of">out of 30 &nbsp;|&nbsp; Average of both modules</div>
+    <div class="out-of">out of 60 &nbsp;|&nbsp; Average of both modules</div>
     <div id="gradeBadge" class="grade-badge"></div>
     <div class="modules-summary">
       <div class="mod-pill">Module 1 <span id="summM1">—</span></div>
@@ -612,7 +682,7 @@
 
     const badge = document.getElementById('gradeBadge');
     let grade, color, bg;
-    const pct = (total / 30) * 100;
+    const pct = (total / 60) * 100;
     if (pct >= 90)      { grade = 'S — Outstanding'; color = '#0b0c10'; bg = '#f0c040'; }
     else if (pct >= 75) { grade = 'A — Excellent';   color = '#0b0c10'; bg = '#66bb6a'; }
     else if (pct >= 60) { grade = 'B — Good';         color = '#0b0c10'; bg = '#4fc3f7'; }
